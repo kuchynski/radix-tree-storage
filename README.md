@@ -49,7 +49,7 @@ main.cpp is a test program. There is a comparison with std::map and std::unorder
 
 <span style="color:yellow">space</span>
 
-Yes, the base tree requires additional memory. This is about 100 bytes for one element, regardless of how long the key is and how large the number of elements is.
+Yes, the radix tree requires additional memory. This is about 100 bytes for one element, regardless of how long the key is and how large the number of elements is.
 
 <span style="color:yellow">speed</span>
 

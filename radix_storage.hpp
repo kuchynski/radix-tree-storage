@@ -48,7 +48,7 @@ class radix_tree: public radix_element<T>
 private:
 	std::array<class radix_element<T>*, radix_element<T>::m_elements_number> m_elements;
 	size_t m_size = 0;
-	const size_t m_step;
+	const bool m_odd_step;
 
 	bool insertNext(const unsigned char *key, const size_t size, T *value);
 
@@ -58,8 +58,8 @@ protected:
 	T& findInternal(const unsigned char *key, const size_t size) const override;
 
 public:
-	radix_tree(size_t step = 0);
-	radix_tree(radix_element<T> *element, size_t step = 0);
+	radix_tree(bool odd_step = false);
+	radix_tree(radix_element<T> *element, bool odd_step = false);
 	~radix_tree();
 
 	virtual bool insert(const std::string& key, const T &value);
@@ -75,7 +75,7 @@ template <typename T>
 T radix_element<T>::end_element;
 
 template <typename T>
-radix_tree<T>::radix_tree(size_t step): m_step(step)
+radix_tree<T>::radix_tree(bool odd_step): m_odd_step(odd_step)
 {
 	for (auto &element: m_elements)
 		element = nullptr;
@@ -84,7 +84,7 @@ radix_tree<T>::radix_tree(size_t step): m_step(step)
 template <typename T>
 unsigned char radix_element<T>::decrease(const bool odd_step)
 {
-	if (odd_step == false) {
+	if (odd_step == true) {
 		const unsigned char *old_key = m_key;
 		unsigned char ret = old_key[0] >> 4;
 
@@ -111,12 +111,12 @@ void radix_element<T>::move(radix_element<T> *element)
 }
 
 template <typename T>
-radix_tree<T>::radix_tree(radix_element<T> *element, size_t step): m_step(step), m_size(1)
+radix_tree<T>::radix_tree(radix_element<T> *element, bool odd_step): m_odd_step(odd_step), m_size(1)
 {
 	for (auto &element: m_elements)
 		element = nullptr;
-	const bool odd_step = m_step & 1;
-	const unsigned char symbol = element->decrease(!odd_step);
+
+	const unsigned char symbol = element->decrease(m_odd_step);
 	if (symbol == radix_element<T>::m_elements_number) {
 		radix_element<T>::move(element);
 	}
@@ -214,10 +214,9 @@ bool radix_tree<T>::insertNext(const unsigned char *key, const size_t size, T *v
 		ret = radix_element<T>::insertNext(value);
 	}
 	else {
-		const bool odd_step = m_step & 1;
-		const unsigned char symbol = odd_step? key[0] >> 4 : key[0] & radix_element<T>::m_key_mask;
-		const unsigned char *next_key = odd_step? key + 1: key;
-		const size_t next_size = odd_step? size - 1 : size;
+		const unsigned char symbol = m_odd_step? key[0] >> 4 : key[0] & radix_element<T>::m_key_mask;
+		const unsigned char *next_key = m_odd_step? key + 1: key;
+		const size_t next_size = m_odd_step? size - 1 : size;
 		auto element = m_elements[symbol];
 
 		if(element == nullptr) {
@@ -227,11 +226,11 @@ bool radix_tree<T>::insertNext(const unsigned char *key, const size_t size, T *v
 		else {	
 			radix_tree<T>* a_element = dynamic_cast<radix_tree<T>*>(element);
 			if(a_element == nullptr) {
-				a_element = new radix_tree<T>(element, m_step + 1);
+				a_element = new radix_tree<T>(element, !m_odd_step);
 				m_elements[symbol] = a_element;
 			}
 
-			ret = a_element->insertNext(odd_step? key + 1: key, odd_step? size - 1 : size, value);
+			ret = a_element->insertNext(m_odd_step? key + 1: key, m_odd_step? size - 1 : size, value);
 		}
 	}
 
@@ -268,11 +267,10 @@ size_t radix_tree<T>::eraseInternal(const unsigned char *key, const size_t size)
 	size_t ret = 0;
 
 	if (size) {
-		const bool odd_step = m_step & 1;
-		const auto symbol = odd_step? key[0] >> 4 : key[0] & radix_element<T>::m_key_mask;
+		const auto symbol = m_odd_step? key[0] >> 4 : key[0] & radix_element<T>::m_key_mask;
 		auto element = m_elements[symbol];
 		if (element) {
-			ret = element->eraseInternal(odd_step? key + 1 : key, odd_step? size - 1 : size);
+			ret = element->eraseInternal(m_odd_step? key + 1 : key, m_odd_step? size - 1 : size);
 			if (element->size() == 0) {
 				delete element;
 				m_elements[symbol] = nullptr;
@@ -311,12 +309,11 @@ template <typename T>
 T& radix_tree<T>::findInternal(const unsigned char *key, const size_t size) const
 {
 	if (size) {
-		const bool odd_step = m_step & 1;
-		const auto symbol = odd_step? key[0] >> 4 : key[0] & radix_element<T>::m_key_mask;
+		const auto symbol = m_odd_step? key[0] >> 4 : key[0] & radix_element<T>::m_key_mask;
 		const auto element = m_elements[symbol];
 
 		if (element) {
-			return element->findInternal(odd_step? key + 1 : key, odd_step? size - 1 : size);
+			return element->findInternal(m_odd_step? key + 1 : key, m_odd_step? size - 1 : size);
 		}
 		return radix_element<T>::end();
 	}
