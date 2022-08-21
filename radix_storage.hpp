@@ -215,11 +215,11 @@ bool radix_tree<T>::insertNext(const unsigned char *key, const size_t size, T *v
 	}
 	else {
 		const unsigned char symbol = m_odd_step? key[0] >> 4 : key[0] & radix_element<T>::m_key_mask;
-		const unsigned char *next_key = m_odd_step? key + 1: key;
-		const size_t next_size = m_odd_step? size - 1 : size;
 		auto element = m_elements[symbol];
 
 		if(element == nullptr) {
+			const unsigned char *next_key = m_odd_step? key + 1: key;
+			const size_t next_size = m_odd_step? size - 1 : size;
 			m_elements[symbol] = new radix_element<T>(next_key, next_size, value);
 			ret = true;
 		}
