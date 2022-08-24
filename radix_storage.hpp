@@ -320,31 +320,32 @@ T& radix_tree<T>::findInternal(const unsigned char *key, const size_t size) cons
 	return radix_element<T>::findInternal(key, size);
 }
 
+// Other key types -----------------------------------------------------------------------------------------
 
 template <typename B, typename T>
 class radix_tree_multi : public radix_tree<T>
 {
 public:
 
-	bool insert(const B& key, const T &value) override
+	bool insert(const B& key, const T &value)
 	{
 		const unsigned char *ptr = (const unsigned char *)&key;
 		return radix_tree<T>::insertFirst(ptr, sizeof(B), value);
 	}
 
-	bool insert(const std::pair<B, T> &pair) override
+	bool insert(const std::pair<B, T> &pair)
 	{
 		const unsigned char *ptr = (const unsigned char *)&pair.first;
 		return radix_tree<T>::insertFirst(ptr, sizeof(B), pair.second);
 	}
 
-	size_t erase(const B& key) override
+	size_t erase(const B& key)
 	{
 		const unsigned char *ptr = (const unsigned char *)&key;
 		return radix_tree<T>::eraseInternal(ptr, sizeof(B));
 	}
 
-	T& find(const B& key) const override
+	T& find(const B& key) const
 	{
 		const unsigned char *ptr = (const unsigned char *)&key;
 		return radix_tree<T>::findInternal(ptr, sizeof(B));
