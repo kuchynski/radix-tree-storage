@@ -49,7 +49,7 @@ main.cpp is a test program. There is a comparison with std::map and std::unorder
 
 <span style="color:yellow">space</span>
 
-Yes, the radix tree requires additional memory. This is about 100 bytes for one element, regardless of how long the key is and how large the number of elements is.
+Yes, the radix tree requires additional memory. But this is for sure less than 100 bytes for one element, regardless of how long the key is and how large the number of elements is.
 
 <span style="color:yellow">speed</span>
 
@@ -61,29 +61,29 @@ std::unordered_map gets faster than the radix tree when the number of elements e
 100'000 elements:
 operation (ms) | insert | access | erase
 --- | --- | --- | ---
-std::map | 133 | 105 | 139 
-std::unordered_map | 48 | 23 | 32 
-Radix tree | 37 | 14 | 23
+std::map | 70 | 50 | 55 
+std::unordered_map | 30 | 13 | 17
+Radix tree | 30 | 7 | 16
 
 
 1'000'000 elements:
 operation (ms) | insert | access | erase
 --- | --- | --- | ---
-std::map | 1898 | 1599 | 2219 
-std::unordered_map | 684 | 333 | 451 
-Radix tree | 503 | 275 | 361
-
-
-5'000'000 elements:
-operation (ms) | insert | access | erase
---- | --- | --- | ---
-std::map | 15703 | 11865 | 14751 
-std::unordered_map | 4078 | 2222 | 2712 
-Radix tree | 3905 | 2433 | 2855
+std::map | 1100 | 1000 | 1000 
+std::unordered_map | 570 | 225 | 300 
+Radix tree | 580 | 180 | 650
 
 
 10'000'000 elements:
 operation (ms) | insert | access | erase
 --- | --- | --- | ---
-std::unordered_map | 9273 | 4389 | 5743 
-Radix tree | 7960 | 4730 | 5656
+std::map | 20000 | 18400 | 19500 
+std::unordered_map | 7100 | 3200 | 4000 
+Radix tree | 8000 | 2800 | 7200
+
+
+30'000'000 elements:
+operation (ms) | insert | access | erase
+--- | --- | --- | ---
+std::unordered_map | 27300 | 10500 | 14200 
+Radix tree | 27000 | 9900 | 24000

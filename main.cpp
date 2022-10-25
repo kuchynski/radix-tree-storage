@@ -13,7 +13,7 @@
 
 #include "radix_storage.hpp"
 
-constexpr auto map_capacity = 1'000'000;
+constexpr auto map_capacity = 10'000'000;
 
 using key_type = std::string;//int
 using argument_type = int;
@@ -24,13 +24,13 @@ void test(test_type *tests_cases, test_type *wrong_tests_cases)
 {
 	T map;
 
-	auto stat_time = std::chrono::high_resolution_clock::now();
+	auto start_time = std::chrono::high_resolution_clock::now();
 	for (auto &test: *tests_cases) {
 		map.insert(test);
 	}
-	auto duration_init = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - stat_time).count();
+	auto duration_init = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
 
-	stat_time = std::chrono::high_resolution_clock::now();
+	start_time = std::chrono::high_resolution_clock::now();
 	for(auto i = 1; i; i--) {
 		for (auto &test: *tests_cases) {
 			const auto res = map.find(test.first);
@@ -38,9 +38,9 @@ void test(test_type *tests_cases, test_type *wrong_tests_cases)
 				std::cout << "Error: " << test.first << " not found" << std::endl;
 		}
 	}
-	auto duration_access = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - stat_time).count();
+	auto duration_access = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
 
-	stat_time = std::chrono::high_resolution_clock::now();
+	start_time = std::chrono::high_resolution_clock::now();
 	for(auto i = 1; i; i--) {
 		for (auto &test: *wrong_tests_cases) {
 			const auto res = map.find(test.first);
@@ -48,13 +48,13 @@ void test(test_type *tests_cases, test_type *wrong_tests_cases)
 			//	std::cout << "Error: " << test.first << " is not wrong" << std::endl;
 		}
 	}
-	auto duration_wrong_access = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - stat_time).count();
+	auto duration_wrong_access = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
 
-	stat_time = std::chrono::high_resolution_clock::now();
+	start_time = std::chrono::high_resolution_clock::now();
 	for (auto &test: *tests_cases) {
 		map.erase(test.first);
 	}
-	auto duration_erase = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - stat_time).count();
+	auto duration_erase = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
 	
 	std::cout <<	"insert time " << duration_init << 
 					" ms, access time " << duration_access << 
@@ -68,9 +68,9 @@ int main(int argc, char** argv)
 	test_type *tests_cases = new test_type();
 	test_type *wrong_tests_cases = new test_type();
 	std::default_random_engine random_engine;
-	std::uniform_int_distribution<int> RandNumber(10, 20);
+	std::uniform_int_distribution<int> RandNumber(10, 100);
 	std::uniform_int_distribution<int> RandBigNumber(0, 1000000000);
-	std::uniform_int_distribution<unsigned char> RandChar(1, 255);
+	std::uniform_int_distribution<unsigned char> RandChar(0, 255);
 	int value = 0;
 
 		// Init
@@ -79,7 +79,6 @@ int main(int argc, char** argv)
 			const auto size = RandNumber(random_engine);
 			std::string str;// = std::to_string(value++);
 			for (auto i = size; i; i--) {
-				const auto p = RandChar(random_engine);
 				str += RandChar(random_engine);
 			}
 
